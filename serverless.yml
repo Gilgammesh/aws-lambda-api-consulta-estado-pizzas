@@ -1,0 +1,30 @@
+service: consultarEstadoPizzas
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  environment:
+    REGION: ${self:provider.region}
+    COMPLETED_ORDER_TABLE: CompletedOrderTable
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.COMPLETED_ORDER_TABLE}"
+
+plugins:
+  - serverless-plugin-typescript
+
+functions:
+  consultarEstadoPedido:
+    handler: handler.consultarEstadoPedido
+    events:
+      - http:
+          method: get
+          path: pedido/{orderId}
+          cors: true
